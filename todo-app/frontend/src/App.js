@@ -1,56 +1,49 @@
-import {useEffect,useState} from "react"
+import { useEffect, useState } from "react"
 import axios from "axios"
 
-function App(){
+function App() {
+  const [tasks, setTasks] = useState([])
+  const [title, setTitle] = useState("")
 
-const [todos,setTodos] = useState([])
-const [task,setTask] = useState("")
+  const API = process.env.REACT_APP_API_URL
 
-const API = process.env.REACT_APP_API_URL
+  const getTasks = async () => {
+    const res = await axios.get(`${API}/tasks`)
+    setTasks(res.data)
+  }
 
-const getTodos = async()=>{
-const res = await axios.get(API+"/todos")
-setTodos(res.data)
-}
+  const addTask = async () => {
+    await axios.post(`${API}/tasks`, { title })
+    setTitle("")
+    getTasks()
+  }
 
-useEffect(()=>{
-getTodos()
-},[])
+  const deleteTask = async (id) => {
+    await axios.delete(`${API}/tasks/${id}`)
+    getTasks()
+  }
 
-const addTodo = async()=>{
-await axios.post(API+"/todos",{task})
-setTask("")
-getTodos()
-}
+  useEffect(() => {
+    getTasks()
+  }, [])
 
-const deleteTodo = async(id)=>{
-await axios.delete(API+"/todos/"+id)
-getTodos()
-}
+  return (
+    <div style={{ padding: 20 }}>
+      <h1>To Do App</h1>
 
-return(
-<div style={{padding:"40px"}}>
+      <input value={title} onChange={e => setTitle(e.target.value)} />
+      <button onClick={addTask}>Add</button>
 
-<h1>Todo App</h1>
-
-<input
-value={task}
-onChange={(e)=>setTask(e.target.value)}
-/>
-
-<button onClick={addTodo}>Add</button>
-
-<ul>
-{todos.map((t,i)=>(
-<li key={i}>
-{t.task}
-<button onClick={()=>deleteTodo(i)}>Delete</button>
-</li>
-))}
-</ul>
-
-</div>
-)
+      <ul>
+        {tasks.map(t => (
+          <li key={t.id}>
+            {t.title}
+            <button onClick={() => deleteTask(t.id)}>X</button>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
 }
 
 export default App

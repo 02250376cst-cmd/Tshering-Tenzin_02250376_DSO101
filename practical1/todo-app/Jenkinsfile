@@ -1,11 +1,10 @@
 pipeline { 
     agent any 
     tools { 
-        nodejs 'NodeJS'   // Must match the name you configured in Jenkins
+        nodejs 'NodeJS'
     } 
 
     stages { 
-        // Stage 1: Checkout Code 
         stage('Checkout') { 
             steps { 
                 git branch: 'main', 
@@ -14,7 +13,7 @@ pipeline {
             } 
         } 
 
-        // Stage 2: Backend Install & Build
+        // Backend
         stage('Backend - Install') { 
             steps { 
                 dir('practical1/todo-app/backend') {
@@ -24,11 +23,9 @@ pipeline {
         } 
 
         stage('Backend - Build') { 
-            steps { 
-                dir('practical1/todo-app/backend') {
-                    bat 'npm run build'
-                }
-            } 
+            steps {
+                echo 'No build step required for backend'
+            }
         } 
 
         stage('Backend - Test') { 
@@ -44,7 +41,7 @@ pipeline {
             } 
         } 
 
-        // Stage 3: Frontend Install & Build
+        // Frontend
         stage('Frontend - Install') { 
             steps { 
                 dir('practical1/todo-app/frontend') {
@@ -74,19 +71,16 @@ pipeline {
             } 
         } 
 
-        // Stage 4: Deploy (Docker Example)
+        // Deploy
         stage('Deploy') { 
             steps { 
                 script { 
-                    // Build Docker images for both backend and frontend
                     dir('practical1/todo-app/backend') {
                         docker.build('tsheringtenzin/todo-backend:latest')
                     }
                     dir('practical1/todo-app/frontend') {
                         docker.build('tsheringtenzin/todo-frontend:latest')
                     }
-
-                    // Push both images to Docker Hub
                     docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-creds') { 
                         docker.image('tsheringtenzin/todo-backend:latest').push() 
                         docker.image('tsheringtenzin/todo-frontend:latest').push() 

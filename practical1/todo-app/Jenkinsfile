@@ -29,16 +29,9 @@ pipeline {
         } 
 
         stage('Backend - Test') { 
-            steps { 
-                dir('practical1/todo-app/backend') {
-                    bat 'npm test'
-                }
-            } 
-            post { 
-                always { 
-                    junit 'practical1/todo-app/backend/junit.xml'
-                } 
-            } 
+            steps {
+                echo 'No backend tests defined yet'
+            }
         } 
 
         // Frontend

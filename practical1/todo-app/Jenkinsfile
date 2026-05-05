@@ -14,27 +14,34 @@ pipeline {
             } 
         } 
  
+        // Stage 2: Install Dependencies
         stage('Install') { 
             steps { 
-                bat 'npm install'
+                dir('practical1/todo-app') {
+                    bat 'npm install'
+                }
             } 
         } 
 
         // Stage 3: Build (if applicable, e.g., for React/TypeScript) 
         stage('Build') { 
             steps { 
-                bat 'npm run build'
+                dir('practical1/todo-app') {
+                    bat 'npm run build'
+                }
             } 
         } 
 
         // Stage 4: Run Unit Tests 
         stage('Test') { 
             steps { 
-                bat 'npm test'   // Runs "test" script (Jest/Mocha) 
+                dir('practical1/todo-app') {
+                    bat 'npm test'   // Runs "test" script (Jest/Mocha) 
+                }
             } 
             post { 
                 always { 
-                    junit 'junit.xml'
+                    junit 'practical1/todo-app/junit.xml'
                 } 
             } 
         } 
@@ -42,15 +49,17 @@ pipeline {
         // Stage 5: Deploy (Docker Example) 
         stage('Deploy') { 
             steps { 
-                script { 
-                    // Build Docker image 
-                    docker.build('tsheringtenzin/node-app:latest')
+                dir('practical1/todo-app') {
+                    script { 
+                        // Build Docker image 
+                        docker.build('tsheringtenzin/node-app:latest')
 
-                    // Push to Docker Hub (requires credentials) 
-                    docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-creds') { 
-                        docker.image('tsheringtenzin/node-app:latest').push() 
+                        // Push to Docker Hub (requires credentials) 
+                        docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-creds') { 
+                            docker.image('tsheringtenzin/node-app:latest').push() 
+                        } 
                     } 
-                } 
+                }
             } 
         } 
     } 

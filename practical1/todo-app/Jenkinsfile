@@ -1,39 +1,57 @@
-pipeline {
-    agent any
-    tools {
+pipeline { 
+    agent any 
+    tools { 
         nodejs 'NodeJS'   // Must match the name you configured in Jenkins
-    }
-
-    stages {
-        stage('Checkout') {
-            steps {
-                git branch: 'main',
-                    url: 'https://github.com/02250376cst-cmd/Tshering-Tenzin_02250376_DSO101.git',
+    } 
+ 
+    stages { 
+        // Stage 1: Checkout Code 
+        stage('Checkout') { 
+            steps { 
+                git branch: 'main', 
+                    url: 'https://github.com/02250376cst-cmd/Tshering-Tenzin_02250376_DSO101/tree/main/practical1/todo-app.git',
                     credentialsId: 'github-creds'
-            }
-        }
-
-        stage('Install') {
-            steps {
+            } 
+        } 
+ 
+        stage('Install') { 
+            steps { 
                 bat 'npm install'
-            }
-        }
+            } 
+        } 
 
-        stage('Build') {
-            steps {
+        // Stage 3: Build (if applicable, e.g., for React/TypeScript) 
+        stage('Build') { 
+            steps { 
                 bat 'npm run build'
-            }
-        }
+            } 
+        } 
 
-        stage('Test') {
-            steps {
-                bat 'npm test'
-            }
-            post {
-                always {
+        // Stage 4: Run Unit Tests 
+        stage('Test') { 
+            steps { 
+                bat 'npm test'   // Runs "test" script (Jest/Mocha) 
+            } 
+            post { 
+                always { 
                     junit 'junit.xml'
-                }
-            }
-        }
-    }
+                } 
+            } 
+        } 
+
+        // Stage 5: Deploy (Docker Example) 
+        stage('Deploy') { 
+            steps { 
+                script { 
+                    // Build Docker image 
+                    docker.build('tsheringtenzin/node-app:latest')
+
+                    // Push to Docker Hub (requires credentials) 
+                    docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-creds') { 
+                        docker.image('tsheringtenzin/node-app:latest').push() 
+                    } 
+                } 
+            } 
+        } 
+    } 
 }

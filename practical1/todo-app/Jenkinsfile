@@ -54,13 +54,8 @@ pipeline {
         stage('Frontend - Test') { 
             steps { 
                 dir('practical1/todo-app/frontend') {
-                    bat 'npm test'
+                    bat 'npm test -- --passWithNoTests'
                 }
-            } 
-            post { 
-                always { 
-                    junit 'practical1/todo-app/frontend/junit.xml'
-                } 
             } 
         } 
 

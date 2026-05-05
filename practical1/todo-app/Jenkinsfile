@@ -3,7 +3,7 @@ pipeline {
     tools { 
         nodejs 'NodeJS'   // Must match the name you configured in Jenkins
     } 
- 
+
     stages { 
         // Stage 1: Checkout Code 
         stage('Checkout') { 
@@ -13,53 +13,85 @@ pipeline {
                     credentialsId: 'github-creds'
             } 
         } 
- 
-        // Stage 2: Install Dependencies
-        stage('Install') { 
+
+        // Stage 2: Backend Install & Build
+        stage('Backend - Install') { 
             steps { 
-                dir('practical1/todo-app') {
+                dir('practical1/todo-app/backend') {
                     bat 'npm install'
                 }
             } 
         } 
 
-        // Stage 3: Build (if applicable, e.g., for React/TypeScript) 
-        stage('Build') { 
+        stage('Backend - Build') { 
             steps { 
-                dir('practical1/todo-app') {
+                dir('practical1/todo-app/backend') {
                     bat 'npm run build'
                 }
             } 
         } 
 
-        // Stage 4: Run Unit Tests 
-        stage('Test') { 
+        stage('Backend - Test') { 
             steps { 
-                dir('practical1/todo-app') {
-                    bat 'npm test'   // Runs "test" script (Jest/Mocha) 
+                dir('practical1/todo-app/backend') {
+                    bat 'npm test'
                 }
             } 
             post { 
                 always { 
-                    junit 'practical1/todo-app/junit.xml'
+                    junit 'practical1/todo-app/backend/junit.xml'
                 } 
             } 
         } 
 
-        // Stage 5: Deploy (Docker Example) 
+        // Stage 3: Frontend Install & Build
+        stage('Frontend - Install') { 
+            steps { 
+                dir('practical1/todo-app/frontend') {
+                    bat 'npm install'
+                }
+            } 
+        } 
+
+        stage('Frontend - Build') { 
+            steps { 
+                dir('practical1/todo-app/frontend') {
+                    bat 'npm run build'
+                }
+            } 
+        } 
+
+        stage('Frontend - Test') { 
+            steps { 
+                dir('practical1/todo-app/frontend') {
+                    bat 'npm test'
+                }
+            } 
+            post { 
+                always { 
+                    junit 'practical1/todo-app/frontend/junit.xml'
+                } 
+            } 
+        } 
+
+        // Stage 4: Deploy (Docker Example)
         stage('Deploy') { 
             steps { 
-                dir('practical1/todo-app') {
-                    script { 
-                        // Build Docker image 
-                        docker.build('tsheringtenzin/node-app:latest')
+                script { 
+                    // Build Docker images for both backend and frontend
+                    dir('practical1/todo-app/backend') {
+                        docker.build('tsheringtenzin/todo-backend:latest')
+                    }
+                    dir('practical1/todo-app/frontend') {
+                        docker.build('tsheringtenzin/todo-frontend:latest')
+                    }
 
-                        // Push to Docker Hub (requires credentials) 
-                        docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-creds') { 
-                            docker.image('tsheringtenzin/node-app:latest').push() 
-                        } 
+                    // Push both images to Docker Hub
+                    docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-creds') { 
+                        docker.image('tsheringtenzin/todo-backend:latest').push() 
+                        docker.image('tsheringtenzin/todo-frontend:latest').push() 
                     } 
-                }
+                } 
             } 
         } 
     } 

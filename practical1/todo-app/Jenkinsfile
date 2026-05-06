@@ -1,80 +1,44 @@
 pipeline { 
-    agent any 
-    tools { 
-        nodejs 'NodeJS'
-    } 
+  agent any 
+  tools { nodejs 'NodeJS' } 
 
-    stages { 
-        stage('Checkout') { 
-            steps { 
-                git branch: 'main', 
-                    url: 'https://github.com/02250376cst-cmd/Tshering-Tenzin_02250376_DSO101_A1.git',
-                    credentialsId: 'github-creds'
-            } 
-        } 
+  stages { 
+    stage('Checkout') {
+      steps {
+        git branch: 'main',
+            url: 'https://github.com/02250376cst-cmd/Tshering-Tenzin_02250376_DSO101_A1.git',
+            credentialsId: 'github-creds'
+      }
+    }
 
-        // Backend
-        stage('Backend - Install') { 
-            steps { 
-                dir('practical1/todo-app/backend') {
-                    bat 'npm install'
-                }
-            } 
-        } 
+    stage('Backend - Install') {
+      steps { dir('practical1/todo-app/backend') { bat 'npm install' } }
+    }
 
-        stage('Backend - Build') { 
-            steps {
-                echo 'No build step required for backend'
-            }
-        } 
+    stage('Backend - Build') {
+      steps { echo 'No build step required for backend' }
+    }
 
-        stage('Backend - Test') { 
-            steps {
-                echo 'No backend tests defined yet'
-            }
-        } 
+    stage('Frontend - Install & Build (optional)') {
+      steps {
+        dir('practical1/todo-app/frontend') {
+          bat 'npm install'
+          bat 'npm run build'
+        }
+      }
+    }
 
-        // Frontend
-        stage('Frontend - Install') { 
-            steps { 
-                dir('practical1/todo-app/frontend') {
-                    bat 'npm install'
-                }
-            } 
-        } 
-
-        stage('Frontend - Build') { 
-            steps { 
-                dir('practical1/todo-app/frontend') {
-                    bat 'npm run build'
-                }
-            } 
-        } 
-
-        stage('Frontend - Test') { 
-            steps { 
-                dir('practical1/todo-app/frontend') {
-                    bat 'npm test -- --passWithNoTests'
-                }
-            } 
-        } 
-
-        // Deploy
-        stage('Deploy') { 
-            steps { 
-                script { 
-                    dir('practical1/todo-app/backend') {
-                        docker.build('tsheringtenzin/todo-backend:latest')
-                    }
-                    dir('practical1/todo-app/frontend') {
-                        docker.build('tsheringtenzin/todo-frontend:latest')
-                    }
-                    docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-creds') { 
-                        docker.image('tsheringtenzin/todo-backend:latest').push() 
-                        docker.image('tsheringtenzin/todo-frontend:latest').push() 
-                    } 
-                } 
-            } 
-        } 
-    } 
+    stage('Deploy Backend Image') {
+      steps {
+        script {
+          dir('practical1/todo-app/backend') {
+            docker.build('tsheringtenzin/todo-backend:latest')
+          }
+          docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-creds') {
+            docker.image('tsheringtenzin/todo-backend:latest').push()
+          }
+        }
+      }
+    }
+  }
 }

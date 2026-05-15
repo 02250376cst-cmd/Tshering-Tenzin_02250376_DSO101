@@ -6,9 +6,12 @@ pipeline {
     }
 
     stages {
+
         stage('Checkout') {
             steps {
-                checkout scm
+                git branch: 'main',
+                    url: 'https://github.com/02250376cst-cmd/Tshering-Tenzin_02250376_DSO101_A1.git',
+                    credentialsId: 'github-creds'
             }
         }
 
@@ -23,8 +26,7 @@ pipeline {
         stage('Backend - Build') {
             steps {
                 dir('practical1/todo-app/backend') {
-                    // This will not fail even if "build" script is missing
-                    bat 'cmd /c "npm run build || exit 0"'
+                    bat 'npm run build || echo "No build script"'
                 }
             }
         }
@@ -35,16 +37,15 @@ pipeline {
                     bat 'npm test'
                 }
             }
-        }
-    
-        post {
-            always {
-                junit allowEmptyResults: true, testResults: 'practical1/todo-app/backend/junit.xml'
+            post {
+                always {
+                    junit allowEmptyResults: true,
+                          testResults: 'practical1/todo-app/backend/junit.xml'
                 }
             }
         }
 
-        stage('Frontend - Install & Build') {
+        stage('Frontend - Install and Build') {
             steps {
                 dir('practical1/todo-app/frontend') {
                     bat 'npm install'
@@ -55,17 +56,11 @@ pipeline {
 
         stage('Deploy Backend Image') {
             steps {
-                script {
-                    withEnv(['DOCKER_CLIENT_TIMEOUT=120', 'COMPOSE_HTTP_TIMEOUT=120']) {
-                        dir('practical1/todo-app/backend') {
-                            docker.build('tsheringtenzin/todo-backend:latest')
-                            docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-creds') {
-                                docker.image('tsheringtenzin/todo-backend:latest').push()
-                            }
-                        }
-                    }
+                dir('practical1/todo-app/backend') {
+                    bat 'docker build -t 02250376tt/be-todo:02250376 .'
                 }
             }
         }
+
     }
 }

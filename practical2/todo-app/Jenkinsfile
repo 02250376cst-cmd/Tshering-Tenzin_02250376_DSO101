@@ -1,0 +1,66 @@
+pipeline {
+    agent any
+
+    tools {
+        nodejs 'NodeJS'
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                git branch: 'main',
+                    url: 'https://github.com/02250376cst-cmd/Tshering-Tenzin_02250376_DSO101_A1.git',
+                    credentialsId: 'github-creds'
+            }
+        }
+
+        stage('Backend - Install') {
+            steps {
+                dir('practical1/todo-app/backend') {
+                    bat 'npm install'
+                }
+            }
+        }
+
+        stage('Backend - Build') {
+            steps {
+                dir('practical1/todo-app/backend') {
+                    bat 'npm run build || echo "No build script"'
+                }
+            }
+        }
+
+        stage('Backend - Test') {
+            steps {
+                dir('practical1/todo-app/backend') {
+                    bat 'npm test'
+                }
+            }
+            post {
+                always {
+                    junit allowEmptyResults: true,
+                          testResults: 'practical1/todo-app/backend/junit.xml'
+                }
+            }
+        }
+
+        stage('Frontend - Install and Build') {
+            steps {
+                dir('practical1/todo-app/frontend') {
+                    bat 'npm install'
+                    bat 'npm run build'
+                }
+            }
+        }
+
+        stage('Deploy Backend Image') {
+            steps {
+                dir('practical1/todo-app/backend') {
+                    bat 'docker build -t 02250376tt/be-todo:02250376 .'
+                }
+            }
+        }
+
+    }
+}

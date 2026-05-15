@@ -70,9 +70,12 @@ app.delete("/tasks/:id", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+const PORT = process.env.PORT || 5000;
 
-app.listen(process.env.PORT, () => {
-  console.log(`Backend running on port ${process.env.PORT}`);
-});
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`Backend running on port ${PORT}`);
+  });
+}
 
-module.exports = app; // Export for testing
+module.exports = app;

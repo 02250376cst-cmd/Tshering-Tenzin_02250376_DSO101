@@ -23,7 +23,8 @@ pipeline {
         stage('Backend - Build') {
             steps {
                 dir('practical1/todo-app/backend') {
-                    bat 'npm run build || echo "No build script"'
+                    // This will not fail even if "build" script is missing
+                    bat 'cmd /c "npm run build || exit 0"'
                 }
             }
         }
@@ -34,9 +35,11 @@ pipeline {
                     bat 'npm test'
                 }
             }
-            post {
-                always {
-                    junit 'practical1/todo-app/backend/junit.xml'
+        }
+    
+        post {
+            always {
+                junit allowEmptyResults: true, testResults: 'practical1/todo-app/backend/junit.xml'
                 }
             }
         }

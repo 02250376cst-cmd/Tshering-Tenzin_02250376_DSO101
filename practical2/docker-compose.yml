@@ -1,0 +1,23 @@
+
+services:
+  web:
+    build: ./app
+    ports:
+      - "8081:5000"
+    depends_on:
+      - redis
+    environment:
+      - REDIS_HOST=redis
+    networks:
+      - app-network
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379"   # expose only internally, not to host (optional)
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

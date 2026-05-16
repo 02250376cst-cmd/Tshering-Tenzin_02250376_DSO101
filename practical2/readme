@@ -1,0 +1,128 @@
+# Practical 2: Multi-Container Application with Docker Compose
+
+**Student:** Tshering Tenzin  
+**Student ID:** 02250376  
+**Date:** 2026-05-16  
+**Module:** DSO101 – DevOps / SWE Practical
+
+## Objective
+Build a multi-container application using Docker Compose. A Flask web app communicates with a Redis database to track page visits. This demonstrates container orchestration, networking, and service dependency.
+
+## Architecture
+- **Web container:** Python Flask app running on port 5000 (mapped to host port **8081**).
+- **Redis container:** In-memory data store on port 6379 (internal only).
+- **Network:** Custom bridge network (`app-network`) allowing containers to resolve each other by service name.
+
+## Tools Used
+- Docker Engine 24+
+- Docker Compose v2.20+
+- Flask 2.3.3
+- Redis 7-alpine
+
+## Project Layout
+practical2/
+├── app/
+│ ├── app.py
+│ ├── Dockerfile
+│ └── requirements.txt
+├── docker-compose.yml
+├── README.md
+└── reflection.md
+
+
+## Implementation Steps
+
+### 1. Application Code (`app/app.py`)
+```python
+from flask import Flask
+from redis import Redis
+
+app = Flask(__name__)
+redis = Redis(host='redis', port=6379)  # 'redis' = service name in docker-compose
+
+@app.route('/')
+def hello():
+    count = redis.incr('visits')
+    return f"Hello from Docker! This page has been visited {count} times."
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
+```
+### 2. Dependencies (app/requirements.txt)
+
+flask==2.3.3
+redis==5.0.1
+
+## 3. Dockerfile (app/Dockerfile)
+dockerfile
+FROM python:3.11-slim
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+COPY app.py .
+EXPOSE 5000
+CMD ["python", "app.py"]
+
+### 4. Docker Compose Configuration (docker-compose.yml)
+yaml
+version: '3.8'
+
+services:
+  web:
+    build: ./app
+    ports:
+      - "8081:5000"            # Host port changed to 8081 (8080 was occupied)
+    depends_on:
+      - redis
+    networks:
+      - app-network
+
+  redis:
+    image: redis:7-alpine
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+Note: The version attribute is obsolete in newer Docker Compose but kept for compatibility. It works fine.
+
+### 5. Build and Run
+bash
+  From the practical2 directory
+docker-compose up --build -d
+Output (successful):
+
+text
+[+] Building 23.1s (12/12) FINISHED
+[+] Running 3/3
+ ✔ Network practical2_app-network  Created
+ ✔ Container practical2-redis-1    Started
+ ✔ Container practical2-web-1      Created
+
+### 6. Verification
+Browser test
+Open http://localhost:8081 – refresh to see visit count increase:
+
+First visit: "Hello from Docker! This page has been visited 1 times."
+
+Second visit: "Hello from Docker! This page has been visited 2 times."
+
+Docker commands
+bash
+$ docker-compose ps
+NAME                   IMAGE               STATUS         PORTS
+practical2-redis-1     redis:7-alpine      Up 2 minutes   6379/tcp
+practical2-web-1       practical2-web      Up 2 minutes   0.0.0.0:8081->5000/tcp
+Check Redis counter directly
+bash
+$ docker exec -it practical2-redis-1 redis-cli get visits
+"5"
+
+### 7. Troubleshooting (Port Conflict)
+Initially, ports: - "8080:5000" failed with:
+
+bind: Only one usage of each socket address...
+
+Cause: Port 8080 was already occupied (likely from Practical 1's container or another service).
+Solution: Changed host port to 8081 in docker-compose.yml.

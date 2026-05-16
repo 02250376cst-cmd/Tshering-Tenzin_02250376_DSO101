@@ -1,0 +1,43 @@
+# ---- Stage 1: Builder ----
+FROM python:3.11-slim AS builder
+
+WORKDIR /app
+
+# Install system build dependencies (if any)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create a virtual environment
+RUN python -m venv /venv
+
+# Copy requirements and install into venv
+COPY requirements.txt .
+RUN /venv/bin/pip install --no-cache-dir -r requirements.txt
+
+# ---- Stage 2: Runtime ----
+FROM python:3.11-slim
+
+# Create non-root user
+RUN addgroup --system appgroup && adduser --system --no-create-home --ingroup appgroup appuser
+
+# Copy the virtual environment from builder
+COPY --from=builder /venv /venv
+
+WORKDIR /app
+
+# Copy application code
+COPY app.py .
+
+# Adjust ownership
+RUN chown -R appuser:appgroup /app && chown -R appuser:appgroup /venv
+
+# Switch to non-root user
+USER appuser
+
+# Use the virtual environment's Python and add it to PATH
+ENV PATH=/venv/bin:$PATH
+
+EXPOSE 5000
+
+CMD ["python", "app.py"]

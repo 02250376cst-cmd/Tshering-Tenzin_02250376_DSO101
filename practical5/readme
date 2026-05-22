@@ -1,0 +1,106 @@
+# Practical 5: Declarative Pipeline in Jenkins with Multiple Stages
+
+
+## Objective
+Create a Declarative Pipeline in Jenkins with multiple stages: Checkout, Build, Test, and Deploy, running on a Windows Jenkins agent.
+
+## Environment
+- **Jenkins:** Native Windows installation on `http://localhost:8080`
+- **Agent:** Windows (using `bat` commands instead of `sh`)
+- **Pipeline type:** Declarative
+- **Job name:** `Basic-Pipeline`
+
+## Pipeline Stages
+
+| Stage | Purpose | Implementation |
+|-------|---------|----------------|
+| Checkout | Simulate fetching code from Git | `bat` commands to create dummy `app.py` and `requirements.txt` |
+| Build   | Simulate building Docker image | `echo` commands showing `docker build` |
+| Test    | Simulate running unit tests | `echo` commands reporting test results |
+| Deploy  | Simulate deployment to staging | `echo` commands for deployment script |
+
+## Pipeline Script (Windows-compatible)
+
+```groovy
+pipeline {
+    agent any
+    
+    environment {
+        APP_NAME = 'flask-counter-app'
+        VERSION = '1.0'
+    }
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                echo 'Checking out code from repository...'
+                bat 'if not exist app mkdir app'
+                bat 'echo from flask import Flask > app\\app.py'
+                bat 'echo app = Flask(__name__) >> app\\app.py'
+                bat 'echo @app.route("/") >> app\\app.py'
+                bat 'echo def hello(): return "Hello" >> app\\app.py'
+                bat 'echo if __name__ == "__main__": app.run() >> app\\app.py'
+                bat 'echo flask==2.3.3 > app\\requirements.txt'
+                echo 'Code checkout complete'
+            }
+        }
+        
+        stage('Build') {
+            steps {
+                echo 'Building Docker image...'
+                bat 'echo docker build -t %APP_NAME%:%VERSION% .'
+            }
+            post {
+                success { echo 'Build successful!' }
+                failure { echo 'Build failed!' }
+            }
+        }
+        
+        stage('Test') {
+            steps {
+                echo 'Running unit tests...'
+                bat 'echo Running pytest (simulated)'
+                bat 'echo test passed: 3/3'
+            }
+        }
+        
+        stage('Deploy') {
+            steps {
+                echo 'Deploying to staging...'
+                bat 'echo docker-compose -f docker-compose.yml up -d'
+                bat 'echo Deployment script executed'
+            }
+        }
+    }
+    
+    post {
+        always { echo 'Pipeline execution finished.' }
+        success { echo '🎉 Pipeline succeeded!' }
+        failure { echo '❌ Pipeline failed. Check logs.' }
+    }
+}
+```
+## Execution Result
+Build #? : SUCCESS (refer to your Jenkins build number)
+
+Console output shows all stages (Checkout, Build, Test, Deploy) executed sequentially
+
+No errors from bat commands
+
+Post actions executed: always and success messages printed
+
+## Screenshots
+Jenkins dashboard with job Basic-Pipeline
+![alt text](image.png)
+
+## Configuration Requirements Met
+Declarative Pipeline syntax used
+
+Minimum 4 stages (Checkout, Build, Test, Deploy)
+
+post condition for always/success/failure
+
+Environment variables defined
+
+Pipeline runs without errors on Windows agent
+

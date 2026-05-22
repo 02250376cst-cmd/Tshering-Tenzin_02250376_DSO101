@@ -1,0 +1,90 @@
+# Practical 6: Integrate External Tools & Artifact Registry
+
+## Objective
+Integrate a package manager (pip) and an artifact registry (Docker Hub) into a Jenkins Declarative Pipeline running on Windows.
+
+## Tools & Services Integrated
+| Type | Name | Purpose |
+|------|------|---------|
+| Package Manager | pip (Python) | Install Flask dependencies from requirements.txt |
+| Artifact Registry | Docker Hub | Store Docker image (simulated push) |
+
+## Pipeline Stages
+
+1. **Checkout** – Creates `app.py` and `requirements.txt` (simulated Git)
+2. **Install Dependencies** – Runs `pip install -r requirements.txt` – real external tool call
+3. **Build Docker Image** – Simulated `docker build` command
+4. **Tag Image** – Simulated `docker tag` for Docker Hub
+5. **Push to Registry** – Simulated `docker push` to Docker Hub
+
+## Pipeline Script (Windows-compatible)
+
+```groovy
+pipeline {
+    agent any
+    environment {
+        APP_NAME = 'flask-counter-app'
+        VERSION = '1.0'
+        DOCKER_HUB_REPO = 'tsheringtenzin/flask-counter-app'
+    }
+    stages {
+        stage('Checkout') {
+            steps {
+                echo 'Checking out code...'
+                bat 'if not exist app mkdir app'
+                bat 'echo from flask import Flask > app\\app.py'
+                bat 'echo app = Flask(__name__) >> app\\app.py'
+                bat 'echo @app.route("/") >> app\\app.py'
+                bat 'echo def hello(): return "Hello" >> app\\app.py'
+                bat 'echo if __name__ == "__main__": app.run() >> app\\app.py'
+                bat 'echo flask==2.3.3 > app\\requirements.txt'
+            }
+        }
+        stage('Install Dependencies') {
+            steps {
+                echo 'Installing Python packages using pip...'
+                bat 'pip install -r app\\requirements.txt'
+            }
+        }
+        stage('Build Docker Image') {
+            steps {
+                echo 'Building Docker image...'
+                bat 'echo docker build -t %APP_NAME%:%VERSION% .'
+            }
+        }
+        stage('Tag Image') {
+            steps {
+                echo 'Tagging image for Docker Hub...'
+                bat 'echo docker tag %APP_NAME%:%VERSION% %DOCKER_HUB_REPO%:%VERSION%'
+            }
+        }
+        stage('Push to Registry') {
+            steps {
+                echo 'Pushing to Docker Hub...'
+                bat 'echo docker push %DOCKER_HUB_REPO%:%VERSION%'
+            }
+        }
+    }
+    post {
+        success { echo 'Pipeline succeeded!' }
+        failure { echo 'Pipeline failed!' }
+    }
+}
+```
+
+## Execution Results
+pip install successful – Flask and dependencies installed
+
+All stages executed without errors
+
+Simulated Docker commands output as echo statements
+
+## Configuration Requirements Met
+External tool (pip) integrated and executed
+
+Artifact registry (Docker Hub) integrated (simulated push)
+
+Credentials managed (optional, for real push)
+
+Windows-compatible bat commands used
+

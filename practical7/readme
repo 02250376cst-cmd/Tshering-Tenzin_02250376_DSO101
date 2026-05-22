@@ -1,0 +1,72 @@
+# Practical 7: Create a Shared Library for Jenkins and Use It in a Pipeline
+
+**Student:** Tshering Tenzin  
+**ID:** 02250376  
+**Date:** 2026-05-22  
+
+## Objective
+Create a reusable Jenkins shared library (Groovy script) and use it in a Declarative Pipeline to demonstrate code reuse.
+
+## Implementation Approach
+- Shared library created as a Groovy file (`sayHello.groovy`) with a named function.
+- Pipeline uses `writeFile` to create the file in the workspace (simulating a Git repository).
+- `load` step imports the library and calls its function.
+
+## Shared Library Script (`sayHello.groovy`)
+
+```groovy
+def sayHello(String name = "World") {
+    echo "Hello, ${name}! This is from shared library."
+}
+return this
+```
+```
+## Pipeline Script
+
+pipeline {
+    agent any
+    stages {
+        stage('Prepare Library') {
+            steps {
+                bat 'if not exist libs mkdir libs'
+                writeFile file: 'libs/sayHello.groovy', text: '''def sayHello(String name = "World") {
+    echo "Hello, ${name}! This is from shared library."
+}
+return this;'''
+            }
+        }
+        stage('Load and Use Library') {
+            steps {
+                script {
+                    def lib = load 'libs/sayHello.groovy'
+                    lib.sayHello('Tshering')
+                    lib.sayHello('Jenkins')
+                }
+            }
+        }
+        stage('Build') { steps { echo 'Building...' } }
+        stage('Test')  { steps { echo 'Testing...' } }
+        stage('Deploy') { steps { echo 'Deploying...' } }
+    }
+    post { success { echo 'Pipeline succeeded!' } }
+}
+```
+## Console Output (excerpt)
+text
+Hello, Tshering! This is from shared library.
+Hello, Jenkins! This is from shared library.
+Building...
+Testing...
+Deploying...
+Pipeline succeeded!
+
+![alt text](image.png)
+
+## Configuration Requirements Met
+Shared library created (Groovy script)
+
+Library loaded and used in pipeline
+
+Pipeline executes successfully
+
+Multi-stage pipeline (Checkout/Build/Test/Deploy not needed for library demo but included)

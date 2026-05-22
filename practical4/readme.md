@@ -1,103 +1,87 @@
-# Practical 4: Jenkins Server Setup & Basic CI/CD Pipeline
+# Practical 4: Jenkins Server & Basic CI/CD Pipeline
 
 **Student:** Tshering Tenzin  
 **Student ID:** 02250376  
-**Date:** 2026-05-16  
+**Date:** 2026-05-22  
 **Module:** DSO101 – DevOps
 
 ## Objective
-Set up a Jenkins server using Docker and create a basic CI/CD pipeline that pulls from a Git repository (or simulates checkout) and runs build/test/deploy stages.
+Set up a Jenkins server on Windows and create a Declarative Pipeline with multiple stages (Checkout, Build, Test, Deploy) that simulates a CI/CD workflow.
 
-## Tools Used
-- Docker Desktop
-- Jenkins LTS (jenkins/jenkins:lts)
-- Git (for version control)
+## Jenkins Setup
+- **Installation:** Native Windows MSI installer
+- **Access URL:** http://localhost:8080
+- **Plugins:** Suggested plugins installed during first startup
 
-## Step 1: Run Jenkins in Docker
+## Pipeline Stages
+| Stage | Description | Implementation |
+|-------|-------------|----------------|
+| Checkout | Simulate fetching code from Git | Creates dummy `README.md` file |
+| Build   | Simulate build step | `echo` commands |
+| Test    | Simulate running tests | `echo` commands |
+| Deploy  | Simulate deployment | `echo` commands |
 
-```bash
-docker volume create jenkins-data
-docker run -d --name jenkins -p 8080:8080 -p 50000:50000 -v jenkins-data:/var/jenkins_home jenkins/jenkins:lts
-```
+## Pipeline Script (Windows-compatible)
 
-## Step 2: Initial Setup
-Retrieve the initial admin password:
-
-bash
-```
-docker exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword
-```
-Access Jenkins at http://localhost:8080, install suggested plugins, create admin user.
-
-## Step 3: Create a Pipeline Job
-New Item → "Basic-Pipeline" → Pipeline
-
-In Pipeline section, choose "Pipeline script"
-
-Paste the Declarative Pipeline:
-```
-groovy
+```groovy
 pipeline {
     agent any
+    
     stages {
         stage('Checkout') {
             steps {
-                echo 'Simulating checkout...'
-                sh 'echo "Checking out code..."'
+                echo 'Checking out code from Git repository...'
+                bat 'mkdir demo-repo 2>nul'
+                bat 'echo Hello > demo-repo\\README.md'
+                echo 'Code checkout complete'
             }
         }
         stage('Build') {
             steps {
-                echo 'Building application...'
-                sh 'echo "Build step executed"'
+                echo 'Building the application...'
+                bat 'echo "Build step executed"'
             }
         }
         stage('Test') {
             steps {
                 echo 'Running tests...'
-                sh 'echo "Tests passed"'
+                bat 'echo "All tests passed"'
             }
         }
         stage('Deploy') {
             steps {
-                echo 'Deploying...'
-                sh 'echo "Deployment simulated"'
+                echo 'Deploying to staging...'
+                bat 'echo "Deployment successful"'
             }
+        }
+    }
+    
+    post {
+        success {
+            echo 'Pipeline succeeded!'
+        }
+        failure {
+            echo 'Pipeline failed!'
         }
     }
 }
 ```
-Save.
+## Execution Result
+Build #1: SUCCESS
 
-## Step 4: Run the Pipeline
+Console output shows all four stages executed in order
 
-Click Build Now. Console output shows successful execution:
+All bat commands completed without errors
 
-text
-```
-Started
-[Pipeline] stage
-[Pipeline] { (Checkout)
-[Pipeline] echo
-Simulating checkout...
-[Pipeline] sh
-+ echo "Checking out code..."
-Checking out code...
-[Pipeline] }
-[Pipeline] stage
-[Pipeline] { (Build)
-...
-[Pipeline] End of Pipeline
-Finished: SUCCESS
-```
+## Screenshots
+
+    ![dashboard](image.png)
 
 ## Configuration Requirements Met
-Jenkins server running in Docker with persistent volume
+Jenkins server running on http://localhost:8080
 
 Pipeline job created
 
-Pipeline has multiple stages (Checkout, Build, Test, Deploy)
+Multi-stage pipeline (Checkout, Build, Test, Deploy)
 
-Pipeline executes successfully
-
-Console output visible
+Pipeline executes successfully on Windows (using bat)

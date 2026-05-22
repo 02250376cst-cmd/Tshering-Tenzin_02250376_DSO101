@@ -1,10 +1,5 @@
 # Practical 2: Multi-Container Application with Docker Compose
 
-**Student:** Tshering Tenzin  
-**Student ID:** 02250376  
-**Date:** 2026-05-16  
-**Module:** DSO101 – DevOps / SWE Practical
-
 ## Objective
 Build a multi-container application using Docker Compose. A Flask web app communicates with a Redis database to track page visits. This demonstrates container orchestration, networking, and service dependency.
 

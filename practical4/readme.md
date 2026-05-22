@@ -1,10 +1,5 @@
 # Practical 4: Jenkins Server & Basic CI/CD Pipeline
 
-**Student:** Tshering Tenzin  
-**Student ID:** 02250376  
-**Date:** 2026-05-22  
-**Module:** DSO101 – DevOps
-
 ## Objective
 Set up a Jenkins server on Windows and create a Declarative Pipeline with multiple stages (Checkout, Build, Test, Deploy) that simulates a CI/CD workflow.
 

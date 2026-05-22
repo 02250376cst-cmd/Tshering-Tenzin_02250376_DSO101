@@ -4,9 +4,6 @@
 ```markdown
 # Reflection – Practical 6
 
-**Student:** Tshering Tenzin  
-**Practical:** External Tools & Artifact Registry Integration
-
 ## What I Learned
 
 1. **Package managers in CI/CD** – Running `pip` inside a pipeline ensures consistent dependencies across environments.

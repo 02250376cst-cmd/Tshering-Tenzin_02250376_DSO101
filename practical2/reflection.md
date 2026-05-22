@@ -6,10 +6,6 @@
 ```markdown
 # Reflection – Practical 2
 
-**Student:** Tshering Tenzin  
-**Date:** 2026-05-16  
-**Practical:** Multi-container application with Docker Compose
-
 ## What I Learned
 1. **Service Discovery** – Docker Compose automatically creates a DNS record for each service. The web app can connect to `redis` by that hostname without needing IP addresses.
 2. **Declarative Infrastructure** – A single `docker-compose.yml` file describes the entire stack (web app, database, network). This is much cleaner than writing multiple `docker run` commands.

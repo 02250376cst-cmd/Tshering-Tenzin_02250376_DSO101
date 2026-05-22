@@ -1,9 +1,5 @@
 # Practical 7: Create a Shared Library for Jenkins and Use It in a Pipeline
 
-**Student:** Tshering Tenzin  
-**ID:** 02250376  
-**Date:** 2026-05-22  
-
 ## Objective
 Create a reusable Jenkins shared library (Groovy script) and use it in a Declarative Pipeline to demonstrate code reuse.
 

@@ -2068,7 +2068,34 @@ jobs:
 ![alt text](<Screenshot 2026-05-23 005224.png>)
 
 
-# Lab 2:
+# Lab 2: Docker run
+1.![alt text](<Screenshot 2026-05-23 204552.png>)
+2.![alt text](<Screenshot 2026-05-23 204607.png>)
+3.![alt text](<Screenshot 2026-05-23 205309.png>)
+4.![alt text](<Screenshot 2026-05-23 205430.png>)
+5.![alt text](<Screenshot 2026-05-23 205747.png>)
+6.![alt text](<Screenshot 2026-05-23 211057.png>)
+![alt text](<Screenshot 2026-05-23 211111.png>)
+
+# Lab 3: Docker images
+1.![alt text](<Screenshot 2026-05-23 213418.png>)
+2.![alt text](<Screenshot 2026-05-23 213444.png>)
+3.![alt text](<Screenshot 2026-05-23 213719.png>)
+4.![alt text](<Screenshot 2026-05-23 214432.png>)
+5.![alt text](<Screenshot 2026-05-23 214656.png>)
+6.![alt text](<Screenshot 2026-05-23 214822.png>)
+7.![alt text](<Screenshot 2026-05-23 214837.png>)
+8.![alt text](<Screenshot 2026-05-23 220229.png>)
+9.![alt text](<Screenshot 2026-05-23 221224.png>)
+10.![alt text](<Screenshot 2026-05-23 221458.png>)
+11.![alt text](<Screenshot 2026-05-23 221559.png>)
+12.![alt text](<Screenshot 2026-05-23 221708.png>)
+13.![alt text](<Screenshot 2026-05-23 221728.png>)
+14.![alt text](<Screenshot 2026-05-23 223710.png>)
+15.![alt text](<Screenshot 2026-05-23 223725.png>)
+![alt text](<Screenshot 2026-05-23 223816.png>)
+
+
 
 ## References
 

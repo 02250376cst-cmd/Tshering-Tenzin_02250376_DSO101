@@ -1708,8 +1708,6 @@ steps:
   - uses: ./.github/actions/setup-app
 ```
 
-<img src="Images/custom_action.png" alt="Custom action folder structure and action.yml file">
-
 ---
 
 ## 7.3 CI/CD with GitHub Actions

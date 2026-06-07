@@ -111,7 +111,6 @@ docker build -t tsheringtenzin/fe-todo:02250376 .
 docker push tsheringtenzin/fe-todo:02250376
 ```
 
-> ⚠️ **Important:** `REACT_APP_*` variables are baked in at build time. Always set the correct API URL in `.env` **before** running `docker build`.
 
 ### Step 4: Deploy Backend on Render
 

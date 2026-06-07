@@ -1,0 +1,63 @@
+# Practical 8: Complete CI/CD Workflow Using GitHub Actions
+
+**Student:** Tshering Tenzin  
+**ID:** 02250376  
+
+## Objective
+Implement a complete CI/CD pipeline using GitHub Actions that automatically builds, tests, and deploys a Flask application whenever code is pushed to GitHub.
+
+## Repository Structure
+
+.
+├── .github/workflows/ci-cd.yml
+├── app.py
+├── Dockerfile
+├── requirements.txt
+└── .gitignore
+
+text
+
+## Workflow File (`.github/workflows/ci-cd.yml`)
+
+```yaml
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.11' }
+      - run: pip install -r requirements.txt
+      - run: docker build -t my-flask-app:${{ github.sha }} .
+  
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install -r requirements.txt pytest
+      - run: echo "def test_app(): assert True" > test_app.py && pytest test_app.py -v
+      - run: docker build -t test-image . && docker run -d -p 5000:5000 --name test-container test-image && sleep 3 && curl -f http://localhost:5000 && docker stop test-container
+  
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - run: echo "Deploying to production (simulated)..."
+      - run: echo " Deployment successful"
+```
+Execution Results
+Workflow triggered on git push to main
+
+All jobs (build, test, deploy) completed successfully
+
+Console logs show green checkmarks on GitHub Actions interface

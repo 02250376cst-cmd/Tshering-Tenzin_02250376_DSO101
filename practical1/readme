@@ -1,0 +1,182 @@
+# Tshering Tenzin | 02250376 | DSO101 | Assignment 1
+
+## Todo List Web Application — CI/CD Deployment
+
+---
+
+
+## Overview
+
+A full-stack Todo List application with a React frontend, Node.js/Express backend, and PostgreSQL database. The app supports adding, completing, and deleting tasks. It is containerized using Docker and deployed on Render.com.
+
+---
+
+## Tech Stack
+
+| Layer    | Technology          |
+|----------|---------------------|
+| Frontend | React, Axios        |
+| Backend  | Node.js, Express    |
+| Database | PostgreSQL (pg)     |
+| Deploy   | Render.com          |
+| Registry | Docker Hub          |
+
+---
+
+## Project Structure
+
+```
+todo-app/
+├── frontend/
+│   ├── Dockerfile
+│   ├── .env
+│   └── src/
+│       └── App.js
+├── backend/
+│   ├── Dockerfile
+│   ├── .env
+│   └── server.js
+└── README.md
+```
+
+---
+
+## Step 0: Local Setup
+
+### Prerequisites
+- Node.js
+- PostgreSQL running locally
+- Docker Desktop installed
+
+### Backend `.env`
+```
+DATABASE_URL=postgresql://postgres:yourpassword@localhost:5432/todo_db
+DB_SSL=false
+PORT=5000
+```
+
+### Frontend `.env`
+```
+REACT_APP_API_URL=http://localhost:5000
+```
+
+### Run locally
+
+```bash
+# Backend
+cd backend
+npm install
+node server.js
+
+# Frontend
+cd frontend
+npm install
+npm start
+```
+
+Backend runs on `http://localhost:5000`  
+Frontend runs on `http://localhost:3000`
+
+---
+
+## Part A: Docker Build & Render Deployment
+
+### Step 1: Create PostgreSQL Database on Render
+
+1. Go to [render.com](https://render.com) → **New +** → **PostgreSQL**
+2. Name: `todo-db`, Region: `Oregon (US West)`, Plan: `Free`
+3. Click **Create Database**
+4. Go to **Connect** tab → copy the **Internal Database URL**
+
+### Step 2: Build & Push Backend Docker Image
+
+```bash
+cd backend
+docker build -t tsheringtenzin/be-todo:02250376 .
+docker login
+docker push tsheringtenzin/be-todo:02250376
+```
+
+### Step 3: Build & Push Frontend Docker Image
+
+Update `frontend/.env` with the live backend URL first:
+```
+REACT_APP_API_URL=https://be-todo-02250376-4.onrender.com
+```
+
+Then build and push:
+```bash
+cd frontend
+docker build -t tsheringtenzin/fe-todo:02250376 .
+docker push tsheringtenzin/fe-todo:02250376
+```
+
+> ⚠️ **Important:** `REACT_APP_*` variables are baked in at build time. Always set the correct API URL in `.env` **before** running `docker build`.
+
+### Step 4: Deploy Backend on Render
+
+1. Go to Render → **New +** → **Web Service**
+2. Select **"Existing image from registry"**
+3. Image: `tsheringtenzin/be-todo:02250376`
+4. Name: `be-todo`, Region: `Oregon (US West)`, Plan: `Free`
+5. Add Environment Variables:
+
+| Key | Value |
+|-----|-------|
+| `DATABASE_URL` | *(Internal DB URL from Render Postgres)* |
+| `DB_SSL` | `true` |
+| `PORT` | `5000` |
+
+6. Click **Create Web Service**
+
+### Step 5: Deploy Frontend on Render
+
+1. Go to Render → **New +** → **Web Service**
+2. Select **"Existing image from registry"**
+3. Image: `tsheringtenzin/fe-todo:02250376`
+4. Name: `fe-todo`, Region: `Oregon (US West)`, Plan: `Free`
+5. Add Environment Variable:
+
+| Key | Value |
+|-----|-------|
+| `REACT_APP_API_URL` | `https://be-todo-02250376-4.onrender.com` |
+
+6. Click **Create Web Service**
+
+---
+
+## Environment Variables
+
+### Backend (set in Render dashboard)
+| Variable | Description |
+|----------|-------------|
+| `DATABASE_URL` | PostgreSQL connection string from Render |
+| `DB_SSL` | Set to `true` on Render, `false` locally |
+| `PORT` | Server port (5000) |
+
+### Frontend (set before Docker build)
+| Variable | Description |
+|----------|-------------|
+| `REACT_APP_API_URL` | URL of the deployed backend |
+
+> Never commit `.env` files to Git. Add `.env` to `.gitignore`.
+
+---
+
+## Live URLs
+
+| Service | URL |
+|---------|-----|
+| Frontend | https://frontend-todo-k4yv.onrender.com |
+| Backend | https://be-todo-02250376-4.onrender.com |
+| Docker Hub (BE) | https://hub.docker.com/r/tsheringtenzin/be-todo |
+| Docker Hub (FE) | https://hub.docker.com/r/tsheringtenzin/fe-todo |
+
+---
+
+## Docker Hub Images
+
+| Image | Tag |
+|-------|-----|
+| `tsheringtenzin/be-todo` | `02250376` |
+| `tsheringtenzin/fe-todo` | `02250376` |

@@ -11,3 +11,122 @@
 
 ## github repo-link - https://github.com/02250376cst-cmd/Tshering-Tenzin_02250376_DSO101
 
+## Overview
+
+This assignment demonstrates the basics of Git, GitHub, GitHub Actions CI/CD, and deployment on Render.com. A simple web application is created, pushed to GitHub, and automatically deployed to Render every time code is pushed to the `main` branch.
+
+---
+
+## Tools & Technologies
+
+| Tool | Purpose |
+|------|---------|
+| Git | Version control |
+| GitHub | Source code hosting |
+| GitHub Actions | CI/CD automation |
+| Render | Cloud deployment |
+| HTML/CSS | Frontend application |
+
+---
+
+### Initialize and push to GitHub
+
+```bash
+# Initialize git
+git init
+
+# Add all files
+git add .
+
+# First commit
+git commit -m "first commit"
+
+# Set branch to main
+git branch -M main
+
+# Add remote origin
+git remote add origin https://github.com/tsheringtenzin/DSO101-A4.git
+
+# Push to GitHub
+git push -u origin main
+```
+
+### Repository structure
+```
+──.github/
+│   └── workflows/
+│       └── deploy.yml
+└── README.md
+```
+
+---
+
+## Step 3: GitHub Actions Workflow
+
+### File: `.github/workflows/deploy.yml`
+
+```yaml
+name: Deploy to Render
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Dummy step
+        run: echo "Code pushed successfully!"
+
+      - name: Trigger Render Deployment
+        run: |
+          curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }}
+```
+
+### Add GitHub Secret
+1. GitHub → Repository → **Settings → Secrets and variables → Actions**
+2. Click **New repository secret**
+3. Name: `RENDER_DEPLOY_HOOK`
+4. Value: *(Deploy Hook URL from Render — see Step 4)*
+
+---
+
+## Step 4: Deploy on Render
+
+### Connect GitHub to Render
+1. Go to [render.com](https://render.com) → **New +** → **Static Site**
+2. Click **Connect a repository**
+3. Select your GitHub repo `DSO101-A4`
+4. Fill in:
+   - **Name:** `dso101-a4-tsheringtenzin`
+   - **Branch:** `main`
+   - **Build Command:** *(leave empty for static site)*
+   - **Publish Directory:** `.` (root)
+5. Click **Create Static Site**
+
+### Get the Deploy Hook
+1. Render → your site → **Settings** tab
+2. Scroll to **Deploy Hook**
+3. Copy the URL and save it as the `RENDER_DEPLOY_HOOK` GitHub secret
+
+### How Auto-Deploy Works
+```
+git push → GitHub Actions runs → echo "Code pushed!" → 
+curl Deploy Hook → Render pulls latest code → Site updates live
+```
+
+---
+
+## Step 5: Verify Deployment
+
+1. Open your live Render URL
+2. You should see the "Hello DevOps! " page
+3. Go to GitHub → **Actions** tab → confirm the workflow ran successfully (green checkmark ✅)
+4. Make a small change (e.g., edit the `<p>` text), push to `main`, and watch it auto-deploy
+
+---
